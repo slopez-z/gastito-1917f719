@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store/app-store";
+import type { CardBrand } from "@/store/app-store";
 
 const formatCurrency = (n: number, currency: string) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(n || 0);
@@ -17,7 +18,9 @@ export default function Index() {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [bankId, setBankId] = useState<string>(state.banks[0]?.id ?? "");
+  const [card, setCard] = useState<CardBrand>("Visa");
   const [cuotas, setCuotas] = useState(false);
+  const [cuotasCount, setCuotasCount] = useState<number>(1);
 
   const totalMonth = useMemo(() => {
     const now = new Date();
@@ -35,11 +38,21 @@ export default function Index() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(amount);
-    if (!amt || !description || !date || !bankId) return;
-    addExpense({ amount: amt, description, date, bankId, cuotas });
+    if (!amt || !description || !date || !bankId || !card) return;
+    const payload = {
+      amount: amt,
+      description,
+      date,
+      bankId,
+      cuotas,
+      card,
+      cuotasCount: cuotas ? Math.max(1, Number(cuotasCount)) : undefined,
+    };
+    addExpense(payload);
     setAmount("");
     setDescription("");
     setCuotas(false);
+    setCuotasCount(1);
   };
 
   return (
@@ -71,8 +84,8 @@ export default function Index() {
         </Card>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3 items-start">
-        <Card className="md:col-span-2 card-elevated">
+      <section className="space-y-6">
+        <Card className="card-elevated">
           <CardHeader>
             <CardTitle>Agregar gasto</CardTitle>
           </CardHeader>
@@ -105,10 +118,29 @@ export default function Index() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex flex-col gap-2">
+                <Label>Tarjeta</Label>
+                <Select value={card} onValueChange={(v) => setCard(v as CardBrand)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una tarjeta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Visa">Visa</SelectItem>
+                    <SelectItem value="MasterCard">MasterCard</SelectItem>
+                    <SelectItem value="American Express">American Express</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex items-center gap-2 mt-2">
                 <Checkbox id="cuotas" checked={cuotas} onCheckedChange={(v) => setCuotas(Boolean(v))} />
                 <Label htmlFor="cuotas">¿En cuotas?</Label>
               </div>
+              {cuotas && (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="cuotasCount">Cantidad de cuotas</Label>
+                  <Input id="cuotasCount" type="number" min={1} value={cuotasCount} onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))} />
+                </div>
+              )}
               <div className="sm:col-span-2 flex gap-3">
                 <Button type="submit" variant="hero">Agregar gasto</Button>
                 <Button variant="soft" asChild>
@@ -125,12 +157,14 @@ export default function Index() {
           </CardHeader>
           <CardContent className="space-y-3">
             {state.expenses.slice(0, 6).map((e) => {
-              const bank = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
+              const bankName = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
+              const dateLabel = new Date(e.date).toLocaleDateString();
+              const cuotasInfo = e.cuotas && e.cuotasCount ? ` • ${e.cuotasCount} cuotas` : "";
               return (
                 <div key={e.id} className="flex items-center justify-between text-sm">
                   <div className="text-left">
                     <div className="font-medium">{e.description}</div>
-                    <div className="text-muted-foreground">{bank} • {new Date(e.date).toLocaleDateString()}</div>
+                    <div className="text-muted-foreground">{bankName}{e.card ? ` • ${e.card}` : ""} • {dateLabel}{cuotasInfo}</div>
                   </div>
                   <div className="font-semibold">{formatCurrency(e.amount, "ARS")}</div>
                 </div>

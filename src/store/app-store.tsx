@@ -2,13 +2,16 @@ import React, { createContext, useContext, useEffect, useMemo, useReducer } from
 import { toast } from "@/hooks/use-toast";
 
 export type Bank = { id: string; name: string };
+export type CardBrand = "Visa" | "MasterCard" | "American Express";
 export type Expense = {
   id: string;
   amount: number;
   description: string;
   date: string; // ISO
   bankId: string;
+  card: CardBrand;
   cuotas: boolean;
+  cuotasCount?: number; // número de cuotas cuando aplica
 };
 export type Salary = { amountUSD: number; rate: number };
 
