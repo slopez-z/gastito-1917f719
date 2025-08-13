@@ -7,6 +7,7 @@ const navItems = [
   { to: "/bancos", label: "Bancos" },
   { to: "/salario", label: "Salario" },
   { to: "/gastos", label: "Gastos" },
+  { to: "/historial", label: "Historial" },
 ];
 
 export const Header = () => {

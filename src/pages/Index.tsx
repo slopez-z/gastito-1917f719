@@ -21,6 +21,7 @@ export default function Index() {
   const [card, setCard] = useState<CardBrand>("Visa");
   const [cuotas, setCuotas] = useState(false);
   const [cuotasCount, setCuotasCount] = useState<number>(1);
+  const [isSubscription, setIsSubscription] = useState(false);
 
   const totalMonth = useMemo(() => {
     const now = new Date();
@@ -30,10 +31,23 @@ export default function Index() {
       .reduce((acc, e) => acc + e.amount, 0);
   }, [state.expenses]);
 
+  const totalFixedExpenses = useMemo(() => {
+    return state.fixedExpenses.alquiler + state.fixedExpenses.expensas + 
+           state.fixedExpenses.internet + state.fixedExpenses.luz;
+  }, [state.fixedExpenses]);
+
+  const totalMonthlyExpenses = useMemo(() => {
+    return totalMonth + totalFixedExpenses;
+  }, [totalMonth, totalFixedExpenses]);
+
   const salaryARS = useMemo(() => {
     if (!state.salary) return 0;
     return state.salary.amountUSD * state.salary.rate;
   }, [state.salary]);
+
+  const finalSalary = useMemo(() => {
+    return salaryARS - totalMonthlyExpenses;
+  }, [salaryARS, totalMonthlyExpenses]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,19 +61,22 @@ export default function Index() {
       cuotas,
       card,
       cuotasCount: cuotas ? Math.max(1, Number(cuotasCount)) : undefined,
+      isSubscription,
     };
     addExpense(payload);
     setAmount("");
     setDescription("");
     setCuotas(false);
     setCuotasCount(1);
+    setIsSubscription(false);
   };
 
   return (
     <div className="space-y-8">
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
       <h1 className="text-2xl font-semibold">Gestión de gastos y salario</h1>
-      <section className="grid gap-4 md:grid-cols-3">
+      
+      <section className="grid gap-4 md:grid-cols-4">
         <Card className="card-elevated">
           <CardHeader>
             <CardTitle>Salario estimado (ARS)</CardTitle>
@@ -78,9 +95,19 @@ export default function Index() {
         </Card>
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Bancos configurados</CardTitle>
+            <CardTitle>Gastos fijos</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">{state.banks.length}</CardContent>
+          <CardContent className="text-2xl font-semibold">
+            {formatCurrency(totalFixedExpenses, "ARS")}
+          </CardContent>
+        </Card>
+        <Card className="card-elevated">
+          <CardHeader>
+            <CardTitle>Salario final</CardTitle>
+          </CardHeader>
+          <CardContent className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
+            {formatCurrency(finalSalary, "ARS")}
+          </CardContent>
         </Card>
       </section>
 
@@ -93,7 +120,7 @@ export default function Index() {
             <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="amount">Monto (ARS)</Label>
-                <Input id="amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" />
+                <Input id="amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="date">Fecha</Label>
@@ -135,13 +162,17 @@ export default function Index() {
                 <Checkbox id="cuotas" checked={cuotas} onCheckedChange={(v) => setCuotas(Boolean(v))} />
                 <Label htmlFor="cuotas">¿En cuotas?</Label>
               </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Checkbox id="subscription" checked={isSubscription} onCheckedChange={(v) => setIsSubscription(Boolean(v))} />
+                <Label htmlFor="subscription">¿Es suscripción?</Label>
+              </div>
               {cuotas && (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cuotasCount">Cantidad de cuotas</Label>
                   <Input id="cuotasCount" type="number" min={1} value={cuotasCount} onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))} />
                 </div>
               )}
-              <div className="sm:col-span-2 flex gap-3">
+              <div className="sm:col-span-2 flex gap-3 justify-center">
                 <Button type="submit" variant="hero">Agregar gasto</Button>
                 <Button variant="soft" asChild>
                   <a href="/salario">Configurar salario</a>
@@ -158,13 +189,28 @@ export default function Index() {
           <CardContent className="space-y-3">
             {state.expenses.slice(0, 6).map((e) => {
               const bankName = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
-              const dateLabel = new Date(e.date).toLocaleDateString();
+              const dateLabel = new Date(e.date).toLocaleDateString("es-AR");
               const cuotasInfo = e.cuotas && e.cuotasCount ? ` • ${e.cuotasCount} cuotas` : "";
+              const subscriptionInfo = e.isSubscription ? " (Suscripción)" : "";
+              
+              // Calcular fecha estimada de última cuota
+              let lastPaymentDate = "";
+              if (e.cuotas && e.cuotasCount && e.cuotasCount > 1) {
+                const baseDate = new Date(e.date);
+                baseDate.setMonth(baseDate.getMonth() + e.cuotasCount - 1);
+                lastPaymentDate = ` • Última cuota: ${baseDate.toLocaleDateString("es-AR")}`;
+              }
+              
               return (
                 <div key={e.id} className="flex items-center justify-between text-sm">
                   <div className="text-left">
-                    <div className="font-medium">{e.description}</div>
-                    <div className="text-muted-foreground">{bankName}{e.card ? ` • ${e.card}` : ""} • {dateLabel}{cuotasInfo}</div>
+                    <div className="font-medium">
+                      {e.description}
+                      <span className="text-muted-foreground">{subscriptionInfo}</span>
+                    </div>
+                    <div className="text-muted-foreground">
+                      {bankName}{e.card ? ` • ${e.card}` : ""} • {dateLabel}{cuotasInfo}{lastPaymentDate}
+                    </div>
                   </div>
                   <div className="font-semibold">{formatCurrency(e.amount, "ARS")}</div>
                 </div>

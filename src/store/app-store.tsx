@@ -12,19 +12,33 @@ export type Expense = {
   card: CardBrand;
   cuotas: boolean;
   cuotasCount?: number; // número de cuotas cuando aplica
+  isSubscription: boolean; // si es suscripción mensual
 };
 export type Salary = { amountUSD: number; rate: number };
+export type FixedExpense = {
+  alquiler: number;
+  expensas: number;
+  internet: number;
+  luz: number;
+};
 
 type State = {
   banks: Bank[];
   expenses: Expense[];
   salary: Salary | null;
+  fixedExpenses: FixedExpense;
 };
 
 const initialState: State = {
   banks: [],
   expenses: [],
   salary: null,
+  fixedExpenses: {
+    alquiler: 0,
+    expensas: 0,
+    internet: 0,
+    luz: 0,
+  },
 };
 
 type Action =
@@ -33,6 +47,7 @@ type Action =
   | { type: "REMOVE_BANK"; id: string }
   | { type: "ADD_EXPENSE"; payload: Omit<Expense, "id"> }
   | { type: "SET_SALARY"; payload: Salary }
+  | { type: "SET_FIXED_EXPENSES"; payload: FixedExpense }
   | { type: "HYDRATE"; payload: State };
 
 function reducer(state: State, action: Action): State {
@@ -63,6 +78,9 @@ function reducer(state: State, action: Action): State {
     case "SET_SALARY": {
       return { ...state, salary: action.payload };
     }
+    case "SET_FIXED_EXPENSES": {
+      return { ...state, fixedExpenses: action.payload };
+    }
     default:
       return state;
   }
@@ -75,6 +93,7 @@ const StoreContext = createContext<{
   removeBank: (id: string) => void;
   addExpense: (payload: Omit<Expense, "id">) => void;
   setSalary: (payload: Salary) => void;
+  setFixedExpenses: (payload: FixedExpense) => void;
 } | null>(null);
 
 export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -119,6 +138,10 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
     setSalary: (payload: Salary) => {
       dispatch({ type: "SET_SALARY", payload });
       toast({ title: "Salario guardado" });
+    },
+    setFixedExpenses: (payload: FixedExpense) => {
+      dispatch({ type: "SET_FIXED_EXPENSES", payload });
+      toast({ title: "Gastos fijos guardados" });
     },
   }), [state]);
 

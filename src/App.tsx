@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/Header";
 import Bancos from "@/pages/Bancos";
 import Salario from "@/pages/Salario";
 import Gastos from "@/pages/Gastos";
+import Historial from "@/pages/Historial";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/bancos" element={<Bancos />} />
               <Route path="/salario" element={<Salario />} />
               <Route path="/gastos" element={<Gastos />} />
+              <Route path="/historial" element={<Historial />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
