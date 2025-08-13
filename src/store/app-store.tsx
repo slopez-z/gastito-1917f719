@@ -14,7 +14,11 @@ export type Expense = {
   cuotasCount?: number; // número de cuotas cuando aplica
   isSubscription: boolean; // si es suscripción mensual
 };
-export type Salary = { amountUSD: number; rate: number };
+export type Salary = { 
+  amountUSD: number; 
+  rate: number; 
+  amountARS: number; // parte en pesos del salario
+};
 export type FixedExpense = {
   alquiler: number;
   expensas: number;

@@ -40,9 +40,14 @@ export default function Index() {
     return totalMonth + totalFixedExpenses;
   }, [totalMonth, totalFixedExpenses]);
 
+  const salaryUSD = useMemo(() => {
+    if (!state.salary) return 0;
+    return state.salary.amountUSD;
+  }, [state.salary]);
+
   const salaryARS = useMemo(() => {
     if (!state.salary) return 0;
-    return state.salary.amountUSD * state.salary.rate;
+    return (state.salary.amountUSD * state.salary.rate) + state.salary.amountARS;
   }, [state.salary]);
 
   const finalSalary = useMemo(() => {
@@ -76,10 +81,18 @@ export default function Index() {
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
       <h1 className="text-2xl font-semibold">Gestión de gastos y salario</h1>
       
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-5">
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Salario estimado (ARS)</CardTitle>
+            <CardTitle>Salario USD</CardTitle>
+          </CardHeader>
+          <CardContent className="text-2xl font-semibold">
+            {formatCurrency(salaryUSD, "USD")}
+          </CardContent>
+        </Card>
+        <Card className="card-elevated">
+          <CardHeader>
+            <CardTitle>Salario total (ARS)</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
             {formatCurrency(salaryARS, "ARS")}

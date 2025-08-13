@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect } from "react";
 
 const navItems = [
@@ -28,17 +29,20 @@ export const Header = () => {
         <Link to="/" className="text-lg font-semibold tracking-tight">
           Tarjetas & Salario
         </Link>
-        <nav className="flex gap-2">
-          {navItems.map(({ to, label, end }) => (
-            <NavLink key={to} to={to} end={end}>
-              {({ isActive }) => (
-                <Button variant="nav" data-active={isActive} size="sm">
-                  {label}
-                </Button>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="flex items-center gap-4">
+          <nav className="flex gap-2">
+            {navItems.map(({ to, label, end }) => (
+              <NavLink key={to} to={to} end={end}>
+                {({ isActive }) => (
+                  <Button variant="nav" data-active={isActive} size="sm">
+                    {label}
+                  </Button>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
