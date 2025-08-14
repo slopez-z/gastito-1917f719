@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppStore } from "@/store/app-store";
 import type { CardBrand } from "@/store/app-store";
+import { Plus, Minus, ArrowUpDown } from "lucide-react";
 
 const formatCurrency = (n: number, currency: string) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(n || 0);
@@ -22,6 +23,7 @@ export default function Index() {
   const [cuotas, setCuotas] = useState(false);
   const [cuotasCount, setCuotasCount] = useState<number>(1);
   const [isSubscription, setIsSubscription] = useState(false);
+  const [sortBy, setSortBy] = useState<"date" | "amount">("date");
 
   const totalMonth = useMemo(() => {
     const now = new Date();
@@ -81,21 +83,16 @@ export default function Index() {
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
       <h1 className="text-2xl font-semibold">Gestión de gastos y salario</h1>
       
-      <section className="grid gap-4 md:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-4">
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Salario USD</CardTitle>
+            <CardTitle>Salario Total</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {formatCurrency(salaryUSD, "USD")}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle>Salario total (ARS)</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {formatCurrency(salaryARS, "ARS")}
+          <CardContent>
+            <div className="text-2xl font-semibold">{formatCurrency(salaryARS, "ARS")}</div>
+            <div className="text-sm text-muted-foreground mt-1">
+              USD: {formatCurrency(salaryUSD, "USD")}
+            </div>
           </CardContent>
         </Card>
         <Card className="card-elevated">
@@ -182,7 +179,33 @@ export default function Index() {
               {cuotas && (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cuotasCount">Cantidad de cuotas</Label>
-                  <Input id="cuotasCount" type="number" min={1} value={cuotasCount} onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))} />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCuotasCount(Math.max(1, cuotasCount - 1))}
+                      disabled={cuotasCount <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      id="cuotasCount"
+                      type="number"
+                      min={1}
+                      value={cuotasCount}
+                      onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))}
+                      className="text-center w-20"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCuotasCount(cuotasCount + 1)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
               <div className="sm:col-span-2 flex gap-3 justify-center">
@@ -196,11 +219,27 @@ export default function Index() {
         </Card>
 
         <Card className="card-elevated">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Gastos recientes</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortBy(sortBy === "date" ? "amount" : "date")}
+            >
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              {sortBy === "date" ? "Por fecha" : "Por monto"}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {state.expenses.slice(0, 6).map((e) => {
+            {state.expenses
+              .sort((a, b) => {
+                if (sortBy === "date") {
+                  return new Date(b.date).getTime() - new Date(a.date).getTime();
+                }
+                return b.amount - a.amount;
+              })
+              .slice(0, 6)
+              .map((e) => {
               const bankName = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
               const dateLabel = new Date(e.date).toLocaleDateString("es-AR");
               const cuotasInfo = e.cuotas && e.cuotasCount ? ` • ${e.cuotasCount} cuotas` : "";

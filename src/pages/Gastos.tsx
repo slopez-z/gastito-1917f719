@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store/app-store";
+import { Plus, Trash2 } from "lucide-react";
 
 const formatCurrency = (n: number, currency: string) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(n || 0);
@@ -15,6 +16,21 @@ export default function Gastos() {
   const [expensas, setExpensas] = useState(state.fixedExpenses.expensas.toString());
   const [internet, setInternet] = useState(state.fixedExpenses.internet.toString());
   const [luz, setLuz] = useState(state.fixedExpenses.luz.toString());
+  const [customExpenses, setCustomExpenses] = useState<Array<{id: string, name: string, value: string}>>([]);
+
+  const addCustomExpense = () => {
+    setCustomExpenses([...customExpenses, { id: crypto.randomUUID(), name: "", value: "0" }]);
+  };
+
+  const removeCustomExpense = (id: string) => {
+    setCustomExpenses(customExpenses.filter(exp => exp.id !== id));
+  };
+
+  const updateCustomExpense = (id: string, field: 'name' | 'value', newValue: string) => {
+    setCustomExpenses(customExpenses.map(exp => 
+      exp.id === id ? { ...exp, [field]: newValue } : exp
+    ));
+  };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +49,8 @@ export default function Gastos() {
     (parseFloat(internet) || 0) + 
     (parseFloat(luz) || 0);
 
+  const totalCustom = customExpenses.reduce((sum, exp) => sum + (parseFloat(exp.value) || 0), 0);
+
   return (
     <div className="space-y-6">
       <SEO title="Gastos Fijos — Gestor de gastos" description="Configura tus gastos fijos mensuales." canonical="/gastos" />
@@ -45,7 +63,7 @@ export default function Gastos() {
         <CardContent>
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="alquiler">Alquiler (ARS)</Label>
+              <Label htmlFor="alquiler">Alquiler</Label>
               <Input 
                 id="alquiler" 
                 type="number" 
@@ -57,7 +75,7 @@ export default function Gastos() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="expensas">Expensas (ARS)</Label>
+              <Label htmlFor="expensas">Expensas</Label>
               <Input 
                 id="expensas" 
                 type="number" 
@@ -69,7 +87,7 @@ export default function Gastos() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="internet">Internet (ARS)</Label>
+              <Label htmlFor="internet">Internet</Label>
               <Input 
                 id="internet" 
                 type="number" 
@@ -81,7 +99,7 @@ export default function Gastos() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="luz">Luz (ARS)</Label>
+              <Label htmlFor="luz">Luz</Label>
               <Input 
                 id="luz" 
                 type="number" 
@@ -98,6 +116,57 @@ export default function Gastos() {
           </form>
         </CardContent>
       </Card>
+
+      {customExpenses.length > 0 && (
+        <Card className="card-elevated">
+          <CardHeader>
+            <CardTitle>Gastos personalizados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {customExpenses.map((expense) => (
+                <div key={expense.id} className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <Label htmlFor={`custom-name-${expense.id}`}>Nombre</Label>
+                    <Input
+                      id={`custom-name-${expense.id}`}
+                      value={expense.name}
+                      onChange={(e) => updateCustomExpense(expense.id, 'name', e.target.value)}
+                      placeholder="Nombre del gasto"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor={`custom-value-${expense.id}`}>Monto</Label>
+                    <Input
+                      id={`custom-value-${expense.id}`}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={expense.value}
+                      onChange={(e) => updateCustomExpense(expense.id, 'value', e.target.value)}
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeCustomExpense(expense.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex justify-center">
+        <Button variant="outline" onClick={addCustomExpense}>
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar gasto personalizado
+        </Button>
+      </div>
 
       <Card className="card-elevated">
         <CardHeader>
@@ -121,10 +190,16 @@ export default function Gastos() {
               <span>Luz:</span>
               <span className="font-medium">{formatCurrency(parseFloat(luz) || 0, "ARS")}</span>
             </div>
+            {customExpenses.map((expense) => (
+              <div key={expense.id} className="flex justify-between">
+                <span>{expense.name || "Gasto personalizado"}:</span>
+                <span className="font-medium">{formatCurrency(parseFloat(expense.value) || 0, "ARS")}</span>
+              </div>
+            ))}
             <hr className="my-2" />
             <div className="flex justify-between text-lg font-semibold">
               <span>Total mensual:</span>
-              <span>{formatCurrency(totalFixed, "ARS")}</span>
+              <span>{formatCurrency(totalFixed + totalCustom, "ARS")}</span>
             </div>
           </div>
         </CardContent>
