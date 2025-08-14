@@ -53,13 +53,13 @@ export default function Bancos() {
               addBank(name);
               setName("");
             }}
-            className="space-y-4"
+            className="flex gap-3 items-end"
           >
             <div className="flex-1">
               <Label htmlFor="bank">Nombre</Label>
               <Input id="bank" ref={inputRef} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre del banco" />
             </div>
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2">
               <Button type="submit" variant="hero"><Plus className="mr-1" />Agregar</Button>
               <Button type="button" variant="destructive" onClick={() => setName("")}>Cancelar</Button>
             </div>
