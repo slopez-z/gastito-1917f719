@@ -53,7 +53,7 @@ export default function Bancos() {
               addBank(name);
               setName("");
             }}
-            className="flex gap-3"
+            className="space-y-4"
           >
             <div className="flex-1">
               <Label htmlFor="bank">Nombre</Label>

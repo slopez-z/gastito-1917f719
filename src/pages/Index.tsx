@@ -91,7 +91,7 @@ export default function Index() {
           <CardContent>
             <div className="text-2xl font-semibold">{formatCurrency(salaryARS, "ARS")}</div>
             <div className="text-sm text-muted-foreground mt-1">
-              USD: {formatCurrency(salaryUSD, "USD")}
+              {formatCurrency(salaryUSD * (state.salary?.rate || 0), "ARS")} + {formatCurrency(state.salary?.amountARS || 0, "ARS")}
             </div>
           </CardContent>
         </Card>
