@@ -110,8 +110,12 @@ export default function Gastos() {
                 placeholder="0,00" 
               />
             </div>
-            <div className="sm:col-span-2 flex justify-center">
-              <Button type="submit" variant="hero">Guardar gastos fijos</Button>
+            <div className="sm:col-span-2 flex gap-3 justify-center">
+              <Button type="submit" variant="hero">Guardar</Button>
+              <Button type="button" variant="outline" onClick={addCustomExpense}>
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar gasto fijo personalizado
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -161,12 +165,6 @@ export default function Gastos() {
         </Card>
       )}
 
-      <div className="flex justify-center">
-        <Button variant="outline" onClick={addCustomExpense}>
-          <Plus className="h-4 w-4 mr-2" />
-          Agregar gasto personalizado
-        </Button>
-      </div>
 
       <Card className="card-elevated">
         <CardHeader>

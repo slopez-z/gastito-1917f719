@@ -78,6 +78,17 @@ export default function Index() {
     setIsSubscription(false);
   };
 
+  const clearForm = () => {
+    setAmount("");
+    setDescription("");
+    setDate(new Date().toISOString().slice(0, 10));
+    setBankId(state.banks[0]?.id ?? "");
+    setCard("Visa");
+    setCuotas(false);
+    setCuotasCount(1);
+    setIsSubscription(false);
+  };
+
   return (
     <div className="space-y-8">
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
@@ -97,7 +108,12 @@ export default function Index() {
                 </div>
               </>
             ) : (
-              <div className="text-xl font-semibold text-muted-foreground">No configurado</div>
+              <>
+                <div className="text-xl font-semibold text-muted-foreground mb-3">No configurado</div>
+                <Button variant="soft" asChild size="sm">
+                  <a href="/salario">Configurar salario</a>
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>
@@ -120,17 +136,11 @@ export default function Index() {
           </CardHeader>
           <CardContent>
             {state.salary && (salaryUSD > 0 || state.salary.amountARS > 0) ? (
-              <>
-                <div className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
-                  {formatCurrency(finalSalary, "ARS")}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">Después de todos los gastos</div>
-              </>
+              <div className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
+                {formatCurrency(finalSalary, "ARS")}
+              </div>
             ) : (
-              <>
-                <div className="text-xl font-semibold text-muted-foreground">Configurá tu salario</div>
-                <div className="text-sm text-muted-foreground mt-1">Después de todos los gastos</div>
-              </>
+              <div className="text-xl font-semibold text-muted-foreground">Configurá tu salario</div>
             )}
           </CardContent>
         </Card>
@@ -226,10 +236,8 @@ export default function Index() {
                 <Label htmlFor="subscription">¿Es suscripción?</Label>
               </div>
               <div className="sm:col-span-2 flex gap-3 justify-center">
-                <Button type="submit" variant="hero">Agregar gasto</Button>
-                <Button variant="soft" asChild>
-                  <a href="/salario">Configurar salario</a>
-                </Button>
+                <Button type="submit" variant="hero">Agregar</Button>
+                <Button type="button" variant="outline" onClick={clearForm}>Limpiar</Button>
               </div>
             </form>
           </CardContent>
