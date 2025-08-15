@@ -83,40 +83,55 @@ export default function Index() {
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
       <h1 className="text-2xl font-semibold">📊 Resumen Financiero</h1>
       
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-3">
         <Card className="card-elevated">
           <CardHeader>
             <CardTitle>💰 Salario Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{formatCurrency(salaryARS, "ARS")}</div>
+            {state.salary && (salaryUSD > 0 || state.salary.amountARS > 0) ? (
+              <>
+                <div className="text-2xl font-semibold">{formatCurrency(salaryARS, "ARS")}</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  {formatCurrency(salaryUSD, "USD")} + {formatCurrency(state.salary?.amountARS || 0, "ARS")}
+                </div>
+              </>
+            ) : (
+              <div className="text-xl font-semibold text-muted-foreground">No configurado</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="card-elevated">
+          <CardHeader>
+            <CardTitle>💳 Gastos Totales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">
+              {formatCurrency(totalMonthlyExpenses, "ARS")}
+            </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {formatCurrency(salaryUSD, "USD")} + {formatCurrency(state.salary?.amountARS || 0, "ARS")}
+              Variables: {formatCurrency(totalMonth, "ARS")} | Fijos: {formatCurrency(totalFixedExpenses, "ARS")}
             </div>
           </CardContent>
         </Card>
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>💳 Gastos del mes</CardTitle>
+            <CardTitle>🎯 Salario Final</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {formatCurrency(totalMonth, "ARS")}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle>🏠 Gastos fijos</CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {formatCurrency(totalFixedExpenses, "ARS")}
-          </CardContent>
-        </Card>
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle>🎯 Salario final</CardTitle>
-          </CardHeader>
-          <CardContent className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
-            {formatCurrency(finalSalary, "ARS")}
+          <CardContent>
+            {state.salary && (salaryUSD > 0 || state.salary.amountARS > 0) ? (
+              <>
+                <div className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
+                  {formatCurrency(finalSalary, "ARS")}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">Después de todos los gastos</div>
+              </>
+            ) : (
+              <>
+                <div className="text-xl font-semibold text-muted-foreground">Configurá tu salario</div>
+                <div className="text-sm text-muted-foreground mt-1">Después de todos los gastos</div>
+              </>
+            )}
           </CardContent>
         </Card>
       </section>
