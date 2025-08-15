@@ -168,26 +168,23 @@ export default function Index() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Checkbox id="cuotas" checked={cuotas} onCheckedChange={(v) => setCuotas(Boolean(v))} />
-                <Label htmlFor="cuotas">¿En cuotas?</Label>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Checkbox id="subscription" checked={isSubscription} onCheckedChange={(v) => setIsSubscription(Boolean(v))} />
-                <Label htmlFor="subscription">¿Es suscripción?</Label>
-              </div>
-              {cuotas && (
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="cuotasCount">Cantidad de cuotas</Label>
+              <div className="flex items-center gap-4 mt-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="cuotas" checked={cuotas} onCheckedChange={(v) => setCuotas(Boolean(v))} />
+                  <Label htmlFor="cuotas">¿En cuotas?</Label>
+                </div>
+                {cuotas && (
                   <div className="flex items-center gap-2">
+                    <Label htmlFor="cuotasCount" className="text-sm">Cantidad:</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => setCuotasCount(Math.max(1, cuotasCount - 1))}
                       disabled={cuotasCount <= 1}
+                      className="h-8 w-8"
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus className="h-3 w-3" />
                     </Button>
                     <Input
                       id="cuotasCount"
@@ -195,19 +192,24 @@ export default function Index() {
                       min={1}
                       value={cuotasCount}
                       onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))}
-                      className="text-center w-20"
+                      className="text-center w-16 h-8"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => setCuotasCount(cuotasCount + 1)}
+                      className="h-8 w-8"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-3 w-3" />
                     </Button>
                   </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Checkbox id="subscription" checked={isSubscription} onCheckedChange={(v) => setIsSubscription(Boolean(v))} />
+                  <Label htmlFor="subscription">¿Es suscripción?</Label>
                 </div>
-              )}
+              </div>
               <div className="sm:col-span-2 flex gap-3 justify-center">
                 <Button type="submit" variant="hero">Agregar gasto</Button>
                 <Button variant="soft" asChild>
