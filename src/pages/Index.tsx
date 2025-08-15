@@ -205,10 +205,10 @@ export default function Index() {
                     </Button>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <Checkbox id="subscription" checked={isSubscription} onCheckedChange={(v) => setIsSubscription(Boolean(v))} />
-                  <Label htmlFor="subscription">¿Es suscripción?</Label>
-                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Checkbox id="subscription" checked={isSubscription} onCheckedChange={(v) => setIsSubscription(Boolean(v))} />
+                <Label htmlFor="subscription">¿Es suscripción?</Label>
               </div>
               <div className="sm:col-span-2 flex gap-3 justify-center">
                 <Button type="submit" variant="hero">Agregar gasto</Button>
