@@ -81,7 +81,7 @@ export default function Index() {
   return (
     <div className="space-y-8">
       <SEO title="Home — Gestor de gastos" description="Registra gastos y visualiza tu resumen mensual." canonical="/" />
-      <h1 className="text-2xl font-semibold">Gestión de gastos y salario</h1>
+      <h1 className="text-2xl font-semibold">📊 Resumen Financiero</h1>
       
       <section className="grid gap-4 md:grid-cols-4">
         <Card className="card-elevated">

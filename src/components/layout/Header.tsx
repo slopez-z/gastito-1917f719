@@ -4,11 +4,11 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect } from "react";
 
 const navItems = [
-  { to: "/", label: "Home", end: true },
-  { to: "/bancos", label: "Bancos" },
-  { to: "/salario", label: "Salario" },
-  { to: "/gastos", label: "Gastos" },
-  { to: "/historial", label: "Historial" },
+  { to: "/", label: "🏠 Home", end: true },
+  { to: "/bancos", label: "🏦 Bancos" },
+  { to: "/salario", label: "🔥 Salario" },
+  { to: "/gastos", label: "💳 Gastos" },
+  { to: "/historial", label: "📊 Historial" },
 ];
 
 export const Header = () => {
@@ -27,7 +27,7 @@ export const Header = () => {
       <div className="absolute inset-0 pointer-events-none bg-gradient-spotlight" aria-hidden />
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="text-lg font-semibold tracking-tight">
-          Tarjetas & Salario
+          💳 Gastito
         </Link>
         <div className="flex items-center gap-4">
           <nav className="flex gap-2">
