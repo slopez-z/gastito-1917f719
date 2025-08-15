@@ -86,7 +86,7 @@ export default function Index() {
       <section className="grid gap-4 md:grid-cols-4">
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Salario Total</CardTitle>
+            <CardTitle>💰 Salario Total</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold">{formatCurrency(salaryARS, "ARS")}</div>
@@ -97,7 +97,7 @@ export default function Index() {
         </Card>
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Gastos del mes</CardTitle>
+            <CardTitle>💳 Gastos del mes</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
             {formatCurrency(totalMonth, "ARS")}
@@ -105,7 +105,7 @@ export default function Index() {
         </Card>
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Gastos fijos</CardTitle>
+            <CardTitle>🏠 Gastos fijos</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
             {formatCurrency(totalFixedExpenses, "ARS")}
@@ -113,7 +113,7 @@ export default function Index() {
         </Card>
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Salario final</CardTitle>
+            <CardTitle>🎯 Salario final</CardTitle>
           </CardHeader>
           <CardContent className={`text-2xl font-semibold ${finalSalary < 0 ? 'text-destructive' : 'text-primary'}`}>
             {formatCurrency(finalSalary, "ARS")}
