@@ -108,12 +108,9 @@ export default function Index() {
                 </div>
               </>
             ) : (
-              <>
-                <div className="text-xl font-semibold text-muted-foreground mb-3">No configurado</div>
-                <Button variant="soft" asChild size="sm">
-                  <a href="/salario">Configurar salario</a>
-                </Button>
-              </>
+              <Button variant="soft" asChild size="sm">
+                <a href="/salario">Configurar salario</a>
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -216,7 +213,7 @@ export default function Index() {
                       type="number"
                       min={1}
                       value={cuotasCount}
-                      onChange={(e) => setCuotasCount(Math.max(1, Number(e.target.value || 1)))}
+                      readOnly
                       className="text-center w-16 h-8"
                     />
                     <Button
