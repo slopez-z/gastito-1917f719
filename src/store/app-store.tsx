@@ -7,6 +7,9 @@ import {
   sanitizeDate, 
   sanitizeCardBrand 
 } from "@/lib/security";
+import { encryptData, decryptData, isSessionExpired, clearEncryptionSession } from "@/lib/encryption";
+import { validateAppState, createSafeFallbackState } from "@/lib/validation";
+import { detectDataAnomaly, logInvalidInput } from "@/lib/security-monitor";
 
 export type Bank = { id: string; name: string };
 export type CardBrand = "Visa" | "MasterCard" | "American Express";
@@ -131,31 +134,104 @@ const StoreContext = createContext<{
 export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Hydrate
+  // Hydrate with encryption and validation
   useEffect(() => {
-    const raw = localStorage.getItem("app-store");
-    if (raw) {
+    const loadStoredData = async () => {
       try {
-        const parsed = JSON.parse(raw) as State;
-        dispatch({ type: "HYDRATE", payload: parsed });
-      } catch {}
-    }
+        // Check if session expired, clear if so
+        if (isSessionExpired()) {
+          clearEncryptionSession();
+          localStorage.removeItem("app-store");
+          return;
+        }
+
+        const raw = localStorage.getItem("app-store");
+        if (!raw) return;
+
+        // Decrypt data
+        const decryptedRaw = await decryptData(raw);
+        const parsed = JSON.parse(decryptedRaw);
+
+        // Validate data structure
+        const validation = validateAppState(parsed);
+        
+        if (validation.isValid && validation.data) {
+          // Ensure data matches State interface exactly
+          const validatedState: State = {
+            banks: validation.data.banks,
+            expenses: validation.data.expenses,
+            salary: validation.data.salary || null,
+            fixedExpenses: validation.data.fixedExpenses
+          };
+          dispatch({ type: "HYDRATE", payload: validatedState });
+        } else {
+          console.warn("Invalid stored data, using fallback state");
+          const fallbackState = createSafeFallbackState();
+          const safeState: State = {
+            banks: fallbackState.banks,
+            expenses: fallbackState.expenses,
+            salary: fallbackState.salary,
+            fixedExpenses: fallbackState.fixedExpenses
+          };
+          dispatch({ type: "HYDRATE", payload: safeState });
+        }
+      } catch (error) {
+        console.error("Failed to load stored data:", error);
+        // Use fallback state on any error
+        const fallbackState = createSafeFallbackState();
+        const safeState: State = {
+          banks: fallbackState.banks,
+          expenses: fallbackState.expenses,
+          salary: fallbackState.salary,
+          fixedExpenses: fallbackState.fixedExpenses
+        };
+        dispatch({ type: "HYDRATE", payload: safeState });
+      }
+    };
+
+    loadStoredData();
   }, []);
 
-  // Persist
+  // Persist with encryption and monitoring
   useEffect(() => {
-    localStorage.setItem("app-store", JSON.stringify(state));
+    const persistData = async () => {
+      try {
+        // Detect data anomalies
+        detectDataAnomaly(state, 'app-store-persist');
+        
+        // Encrypt and store data
+        const dataString = JSON.stringify(state);
+        const encryptedData = await encryptData(dataString);
+        localStorage.setItem("app-store", encryptedData);
+      } catch (error) {
+        console.error("Failed to persist data:", error);
+        // Fallback to unencrypted storage
+        localStorage.setItem("app-store", JSON.stringify(state));
+      }
+    };
+
+    // Don't persist initial empty state
+    if (state.banks.length > 0 || state.expenses.length > 0 || state.salary || 
+        Object.values(state.fixedExpenses).some(val => val > 0)) {
+      persistData();
+    }
   }, [state]);
 
   const api = useMemo(() => ({
     state,
     addBank: (name: string) => {
-      if (!name.trim()) return;
+      if (!name.trim()) {
+        logInvalidInput(name, 'non-empty string', 'addBank');
+        return;
+      }
       dispatch({ type: "ADD_BANK", name: name.trim() });
       toast({ title: "Banco agregado" });
     },
     editBank: (id: string, name: string) => {
-      if (!name.trim()) return;
+      if (!name.trim()) {
+        logInvalidInput(name, 'non-empty string', 'editBank');
+        return;
+      }
       dispatch({ type: "EDIT_BANK", id, name: name.trim() });
       toast({ title: "Banco actualizado" });
     },
