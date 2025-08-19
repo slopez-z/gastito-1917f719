@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from "react";
 import { toast } from "@/hooks/use-toast";
+import { 
+  sanitizeBankName, 
+  sanitizeExpenseDescription, 
+  sanitizeNumber, 
+  sanitizeDate, 
+  sanitizeCardBrand 
+} from "@/lib/security";
 
 export type Bank = { id: string; name: string };
 export type CardBrand = "Visa" | "MasterCard" | "American Express";
@@ -60,12 +67,14 @@ function reducer(state: State, action: Action): State {
       return action.payload;
     case "ADD_BANK": {
       const id = crypto.randomUUID();
-      return { ...state, banks: [...state.banks, { id, name: action.name }] };
+      const sanitizedName = sanitizeBankName(action.name);
+      return { ...state, banks: [...state.banks, { id, name: sanitizedName }] };
     }
     case "EDIT_BANK": {
+      const sanitizedName = sanitizeBankName(action.name);
       return {
         ...state,
-        banks: state.banks.map((b) => (b.id === action.id ? { ...b, name: action.name } : b)),
+        banks: state.banks.map((b) => (b.id === action.id ? { ...b, name: sanitizedName } : b)),
       };
     }
     case "REMOVE_BANK": {
@@ -77,13 +86,32 @@ function reducer(state: State, action: Action): State {
     }
     case "ADD_EXPENSE": {
       const id = crypto.randomUUID();
-      return { ...state, expenses: [{ id, ...action.payload }, ...state.expenses] };
+      const sanitizedExpense = {
+        ...action.payload,
+        amount: sanitizeNumber(action.payload.amount),
+        description: sanitizeExpenseDescription(action.payload.description),
+        date: sanitizeDate(action.payload.date),
+        card: sanitizeCardBrand(action.payload.card),
+        cuotasCount: action.payload.cuotasCount ? sanitizeNumber(action.payload.cuotasCount) : undefined,
+      };
+      return { ...state, expenses: [{ id, ...sanitizedExpense }, ...state.expenses] };
     }
     case "SET_SALARY": {
-      return { ...state, salary: action.payload };
+      const sanitizedSalary = {
+        amountUSD: sanitizeNumber(action.payload.amountUSD),
+        rate: sanitizeNumber(action.payload.rate),
+        amountARS: sanitizeNumber(action.payload.amountARS),
+      };
+      return { ...state, salary: sanitizedSalary };
     }
     case "SET_FIXED_EXPENSES": {
-      return { ...state, fixedExpenses: action.payload };
+      const sanitizedFixedExpenses = {
+        alquiler: sanitizeNumber(action.payload.alquiler),
+        expensas: sanitizeNumber(action.payload.expensas),
+        internet: sanitizeNumber(action.payload.internet),
+        luz: sanitizeNumber(action.payload.luz),
+      };
+      return { ...state, fixedExpenses: sanitizedFixedExpenses };
     }
     default:
       return state;

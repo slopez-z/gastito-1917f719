@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store/app-store";
 import { Plus, Trash2 } from "lucide-react";
+import { sanitizeFixedExpenseName, sanitizeNumber } from "@/lib/security";
 
 const formatCurrency = (n: number, currency: string) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(n || 0);
@@ -27,9 +28,16 @@ export default function Gastos() {
   };
 
   const updateCustomExpense = (id: string, field: 'name' | 'value', newValue: string) => {
-    setCustomExpenses(customExpenses.map(exp => 
-      exp.id === id ? { ...exp, [field]: newValue } : exp
-    ));
+    setCustomExpenses(customExpenses.map(exp => {
+      if (exp.id === id) {
+        if (field === 'name') {
+          return { ...exp, [field]: sanitizeFixedExpenseName(newValue) };
+        } else {
+          return { ...exp, [field]: newValue }; // Value will be sanitized when saving
+        }
+      }
+      return exp;
+    }));
   };
 
   const onSubmit = (e: React.FormEvent) => {
