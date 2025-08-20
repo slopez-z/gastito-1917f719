@@ -5,7 +5,7 @@
 
 // Encryption key management
 const ENCRYPTION_KEY_STORAGE = 'app-encryption-key';
-const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+const SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 interface EncryptedData {
   data: string;

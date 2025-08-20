@@ -138,11 +138,10 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
   useEffect(() => {
     const loadStoredData = async () => {
       try {
-        // Check if session expired, clear if so
+        // If session expired, clear encryption session but keep data
         if (isSessionExpired()) {
           clearEncryptionSession();
-          localStorage.removeItem("app-store");
-          return;
+          // Don't remove data, just re-encrypt with new session
         }
 
         const raw = localStorage.getItem("app-store");
