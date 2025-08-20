@@ -110,6 +110,7 @@ export async function decryptData(encryptedString: string): Promise<string> {
       return encryptedString;
     }
     
+    // Always try to get key, even if session expired (creates new key if needed)
     const key = await getOrCreateEncryptionKey();
     const iv = new Uint8Array(encryptedData.iv.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
     const data = new Uint8Array(encryptedData.data.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
@@ -129,7 +130,7 @@ export async function decryptData(encryptedString: string): Promise<string> {
       JSON.parse(encryptedString);
       return encryptedString;
     } catch {
-      return '{}';
+      throw new Error('Data is corrupted and cannot be recovered');
     }
   }
 }

@@ -138,17 +138,18 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
   useEffect(() => {
     const loadStoredData = async () => {
       try {
-        // If session expired, clear encryption session but keep data
-        if (isSessionExpired()) {
-          clearEncryptionSession();
-          // Don't remove data, just re-encrypt with new session
-        }
-
+        // Always try to load data, regardless of session expiration
         const raw = localStorage.getItem("app-store");
         if (!raw) return;
 
-        // Decrypt data
-        const decryptedRaw = await decryptData(raw);
+        // Try to decrypt data, fallback to unencrypted if needed
+        let decryptedRaw: string;
+        try {
+          decryptedRaw = await decryptData(raw);
+        } catch (error) {
+          console.warn("Decryption failed, trying unencrypted data:", error);
+          decryptedRaw = raw;
+        }
         const parsed = JSON.parse(decryptedRaw);
 
         // Validate data structure
