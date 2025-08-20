@@ -151,7 +151,7 @@ export default function Index() {
           <CardContent>
             <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="amount">Monto (ARS)</Label>
+                <Label htmlFor="amount">Monto</Label>
                 <Input id="amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
               </div>
               <div className="flex flex-col gap-2">
