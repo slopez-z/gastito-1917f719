@@ -11,9 +11,9 @@ const formatCurrency = (n: number, currency: string) =>
 
 export default function Salario() {
   const { state, setSalary } = useAppStore();
-  const [amountUSD, setAmountUSD] = useState(state.salary?.amountUSD?.toString() || "");
-  const [amountARS, setAmountARS] = useState(state.salary?.amountARS?.toString() || "");
-  const [rate, setRate] = useState(state.salary?.rate?.toString() || "");
+  const [amountUSD, setAmountUSD] = useState(state.salary?.amountUSD && state.salary.amountUSD > 0 ? state.salary.amountUSD.toString() : "");
+  const [amountARS, setAmountARS] = useState(state.salary?.amountARS && state.salary.amountARS > 0 ? state.salary.amountARS.toString() : "");
+  const [rate, setRate] = useState(state.salary?.rate && state.salary.rate > 0 ? state.salary.rate.toString() : "");
 
   const totalSalaryARS = 
     (parseFloat(amountUSD) || 0) * (parseFloat(rate) || 0) + (parseFloat(amountARS) || 0);

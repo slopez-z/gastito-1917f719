@@ -13,14 +13,14 @@ const formatCurrency = (n: number, currency: string) =>
 
 export default function Gastos() {
   const { state, setFixedExpenses } = useAppStore();
-  const [alquiler, setAlquiler] = useState(state.fixedExpenses.alquiler.toString());
-  const [expensas, setExpensas] = useState(state.fixedExpenses.expensas.toString());
-  const [internet, setInternet] = useState(state.fixedExpenses.internet.toString());
-  const [luz, setLuz] = useState(state.fixedExpenses.luz.toString());
+  const [alquiler, setAlquiler] = useState(state.fixedExpenses.alquiler > 0 ? state.fixedExpenses.alquiler.toString() : "");
+  const [expensas, setExpensas] = useState(state.fixedExpenses.expensas > 0 ? state.fixedExpenses.expensas.toString() : "");
+  const [internet, setInternet] = useState(state.fixedExpenses.internet > 0 ? state.fixedExpenses.internet.toString() : "");
+  const [luz, setLuz] = useState(state.fixedExpenses.luz > 0 ? state.fixedExpenses.luz.toString() : "");
   const [customExpenses, setCustomExpenses] = useState<Array<{id: string, name: string, value: string}>>([]);
 
   const addCustomExpense = () => {
-    setCustomExpenses([...customExpenses, { id: crypto.randomUUID(), name: "", value: "0" }]);
+    setCustomExpenses([...customExpenses, { id: crypto.randomUUID(), name: "", value: "" }]);
   };
 
   const removeCustomExpense = (id: string) => {
