@@ -42,15 +42,15 @@ export default function Salario() {
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="amountUSD">Salario en USD</Label>
-              <Input id="amountUSD" type="number" min="0" step="0.01" value={amountUSD} onChange={(e) => setAmountUSD(e.target.value)} placeholder="0,00" />
+              <Input id="amountUSD" type="text" inputMode="decimal" value={amountUSD} onChange={(e) => setAmountUSD(e.target.value)} placeholder="0,00" />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="rate">Cotización del dólar</Label>
-              <Input id="rate" type="number" min="0" step="0.01" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="0,00" />
+              <Input id="rate" type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="0,00" />
             </div>
             <div className="flex flex-col gap-2 sm:col-span-2">
               <Label htmlFor="amountARS">Salario en ARS</Label>
-              <Input id="amountARS" type="number" min="0" step="0.01" value={amountARS} onChange={(e) => setAmountARS(e.target.value)} placeholder="0,00" />
+              <Input id="amountARS" type="text" inputMode="decimal" value={amountARS} onChange={(e) => setAmountARS(e.target.value)} placeholder="0,00" />
             </div>
             <div className="sm:col-span-2 flex justify-center">
               <Button type="submit" variant="hero">Guardar salario</Button>

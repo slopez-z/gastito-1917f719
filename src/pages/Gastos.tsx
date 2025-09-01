@@ -72,19 +72,19 @@ export default function Gastos() {
           <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="alquiler">Alquiler</Label>
-              <Input id="alquiler" type="number" min="0" step="0.01" value={alquiler} onChange={(e) => setAlquiler(e.target.value)} placeholder="0,00" />
+              <Input id="alquiler" type="text" inputMode="decimal" value={alquiler} onChange={(e) => setAlquiler(e.target.value)} placeholder="0,00" />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="expensas">Expensas</Label>
-              <Input id="expensas" type="number" min="0" step="0.01" value={expensas} onChange={(e) => setExpensas(e.target.value)} placeholder="0,00" />
+              <Input id="expensas" type="text" inputMode="decimal" value={expensas} onChange={(e) => setExpensas(e.target.value)} placeholder="0,00" />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="internet">Internet</Label>
-              <Input id="internet" type="number" min="0" step="0.01" value={internet} onChange={(e) => setInternet(e.target.value)} placeholder="0,00" />
+              <Input id="internet" type="text" inputMode="decimal" value={internet} onChange={(e) => setInternet(e.target.value)} placeholder="0,00" />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="luz">Luz</Label>
-              <Input id="luz" type="number" min="0" step="0.01" value={luz} onChange={(e) => setLuz(e.target.value)} placeholder="0,00" />
+              <Input id="luz" type="text" inputMode="decimal" value={luz} onChange={(e) => setLuz(e.target.value)} placeholder="0,00" />
             </div>
             <div className="sm:col-span-2 flex gap-3 justify-center">
               <Button type="submit" variant="hero">Guardar</Button>
@@ -117,7 +117,7 @@ export default function Gastos() {
                   </div>
                   <div className="flex-1">
                     <Label htmlFor={`custom-value-${expense.id}`}>Monto</Label>
-                    <Input id={`custom-value-${expense.id}`} type="number" min="0" step="0.01" value={expense.value} onChange={(e) => updateCustomExpense(expense.id, 'value', e.target.value)} placeholder="0,00" />
+                    <Input id={`custom-value-${expense.id}`} type="text" inputMode="decimal" value={expense.value} onChange={(e) => updateCustomExpense(expense.id, 'value', e.target.value)} placeholder="0,00" />
                   </div>
                   <Button
                     variant="destructive"
