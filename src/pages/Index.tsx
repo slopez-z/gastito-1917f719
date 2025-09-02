@@ -101,7 +101,7 @@ export default function Index() {
       </div>
       
       <section className="grid gap-6 md:grid-cols-3">
-        <Card className="card-modern animate-scale-in group hover:animate-pulse-glow">
+        <Card className="card-modern animate-scale-in group hover:shadow-lg hover:border-primary/30 transition-all duration-300">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-3 text-lg">
               <span className="text-3xl">💰</span>
@@ -129,7 +129,7 @@ export default function Index() {
           </CardContent>
         </Card>
 
-        <Card className="card-modern animate-scale-in group hover:animate-pulse-glow" style={{animationDelay: '0.1s'}}>
+        <Card className="card-modern animate-scale-in group hover:shadow-lg hover:border-primary/30 transition-all duration-300" style={{animationDelay: '0.1s'}}>
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-3 text-lg">
               <span className="text-3xl">💳</span>
@@ -155,7 +155,7 @@ export default function Index() {
           </CardContent>
         </Card>
 
-        <Card className="card-modern animate-scale-in group hover:animate-pulse-glow" style={{animationDelay: '0.2s'}}>
+        <Card className="card-modern animate-scale-in group hover:shadow-lg hover:border-primary/30 transition-all duration-300" style={{animationDelay: '0.2s'}}>
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-3 text-lg">
               <span className="text-3xl">🎯</span>
