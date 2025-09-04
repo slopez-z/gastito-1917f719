@@ -14,17 +14,17 @@ interface EncryptedData {
 }
 
 /**
- * Generate or retrieve encryption key from sessionStorage
+ * Generate or retrieve encryption key from localStorage
  */
 async function getOrCreateEncryptionKey(): Promise<CryptoKey> {
-  const stored = sessionStorage.getItem(ENCRYPTION_KEY_STORAGE);
+  const stored = localStorage.getItem(ENCRYPTION_KEY_STORAGE);
   
   if (stored) {
     try {
       const keyData = JSON.parse(stored);
       // Check if session has expired
       if (Date.now() - keyData.timestamp > SESSION_TIMEOUT) {
-        sessionStorage.removeItem(ENCRYPTION_KEY_STORAGE);
+        localStorage.removeItem(ENCRYPTION_KEY_STORAGE);
         return generateNewKey();
       }
       
@@ -51,14 +51,14 @@ async function generateNewKey(): Promise<CryptoKey> {
     ['encrypt', 'decrypt']
   );
   
-  // Store key in sessionStorage (expires when browser closes)
+  // Store key in localStorage (expires after 30 days)
   const keyBuffer = await crypto.subtle.exportKey('raw', key);
   const keyData = {
     key: Array.from(new Uint8Array(keyBuffer)),
     timestamp: Date.now()
   };
   
-  sessionStorage.setItem(ENCRYPTION_KEY_STORAGE, JSON.stringify(keyData));
+  localStorage.setItem(ENCRYPTION_KEY_STORAGE, JSON.stringify(keyData));
   
   return key;
 }
@@ -139,14 +139,14 @@ export async function decryptData(encryptedString: string): Promise<string> {
  * Clear encryption session (force re-encryption on next use)
  */
 export function clearEncryptionSession(): void {
-  sessionStorage.removeItem(ENCRYPTION_KEY_STORAGE);
+  localStorage.removeItem(ENCRYPTION_KEY_STORAGE);
 }
 
 /**
  * Check if session has expired
  */
 export function isSessionExpired(): boolean {
-  const stored = sessionStorage.getItem(ENCRYPTION_KEY_STORAGE);
+  const stored = localStorage.getItem(ENCRYPTION_KEY_STORAGE);
   if (!stored) return true;
   
   try {
