@@ -376,6 +376,8 @@ export default function Index() {
               .map((e, index) => {
               const bankName = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
               const dateLabel = new Date(e.date).toLocaleDateString("es-AR");
+              // Calcular monto de cuota individual
+              const installmentAmount = e.cuotas && e.cuotasCount ? e.amount / e.cuotasCount : e.amount;
               const cuotasInfo = e.cuotas && e.cuotasCount ? ` • ${e.cuotasCount} cuotas` : "";
               const subscriptionInfo = e.isSubscription ? " 🔄" : "";
               
@@ -403,9 +405,22 @@ export default function Index() {
                       <span className="text-blue-500">🏦</span>
                       {bankName}{e.card ? ` • ${e.card}` : ""} • 📅 {dateLabel}{cuotasInfo}{lastPaymentDate}
                     </div>
+                    {e.cuotas && e.cuotasCount && (
+                      <div className="text-xs text-muted-foreground/80 flex items-center gap-1">
+                        <span className="text-orange-500">💰</span>
+                        Total: {formatCurrency(e.amount, "ARS")}
+                      </div>
+                    )}
                   </div>
-                  <div className="font-bold text-lg text-destructive">
-                    {formatCurrency(e.amount, "ARS")}
+                  <div className="text-right">
+                    <div className="font-bold text-lg text-destructive">
+                      {formatCurrency(installmentAmount, "ARS")}
+                    </div>
+                    {e.cuotas && e.cuotasCount && (
+                      <div className="text-xs text-muted-foreground">
+                        por cuota
+                      </div>
+                    )}
                   </div>
                 </div>
               );
