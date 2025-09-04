@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ const formatCurrency = (n: number, currency: string) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(n || 0);
 
 export default function Index() {
-  const { state, addExpense } = useAppStore();
+  const { state, addExpense, cleanMonthlyExpenses } = useAppStore();
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -25,12 +25,43 @@ export default function Index() {
   const [isSubscription, setIsSubscription] = useState(false);
   const [sortBy, setSortBy] = useState<"date" | "amount">("date");
 
+  // Limpiar gastos del mes anterior automáticamente
+  useEffect(() => {
+    const checkAndCleanExpenses = () => {
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const lastCleanup = localStorage.getItem("lastMonthCleanup");
+      
+      // Si es un nuevo mes y no hemos limpiado este mes
+      if (lastCleanup !== currentMonth) {
+        const hasExpensesFromPreviousMonth = state.expenses.some(e => 
+          !e.date.startsWith(currentMonth) && !e.isSubscription && !e.cuotas
+        );
+        
+        if (hasExpensesFromPreviousMonth) {
+          cleanMonthlyExpenses();
+          localStorage.setItem("lastMonthCleanup", currentMonth);
+        }
+      }
+    };
+
+    // Verificar al cargar la página
+    checkAndCleanExpenses();
+  }, [state.expenses, cleanMonthlyExpenses]);
+
   const totalMonth = useMemo(() => {
     const now = new Date();
     const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     return state.expenses
       .filter((e) => e.date.startsWith(ym))
-      .reduce((acc, e) => acc + e.amount, 0);
+      .reduce((acc, e) => {
+        // Para cuotas, calcular solo el monto mensual
+        if (e.cuotas && e.cuotasCount) {
+          return acc + (e.amount / e.cuotasCount);
+        }
+        // Para gastos normales, usar el monto completo
+        return acc + e.amount;
+      }, 0);
   }, [state.expenses]);
 
   const totalFixedExpenses = useMemo(() => {
@@ -366,13 +397,18 @@ export default function Index() {
           </CardHeader>
           <CardContent className="space-y-4">
             {state.expenses
+              .filter((e) => {
+                // Mostrar todos los gastos del mes actual
+                const now = new Date();
+                const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+                return e.date.startsWith(ym);
+              })
               .sort((a, b) => {
                 if (sortBy === "date") {
                   return new Date(b.date).getTime() - new Date(a.date).getTime();
                 }
                 return b.amount - a.amount;
               })
-              .slice(0, 6)
               .map((e, index) => {
               const bankName = state.banks.find((b) => b.id === e.bankId)?.name ?? "Sin banco";
               const dateLabel = new Date(e.date).toLocaleDateString("es-AR");

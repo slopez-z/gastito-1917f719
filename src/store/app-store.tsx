@@ -60,6 +60,9 @@ type Action =
   | { type: "EDIT_BANK"; id: string; name: string }
   | { type: "REMOVE_BANK"; id: string }
   | { type: "ADD_EXPENSE"; payload: Omit<Expense, "id"> }
+  | { type: "EDIT_EXPENSE"; id: string; payload: Omit<Expense, "id"> }
+  | { type: "REMOVE_EXPENSE"; id: string }
+  | { type: "CLEAN_MONTHLY_EXPENSES" }
   | { type: "SET_SALARY"; payload: Salary }
   | { type: "SET_FIXED_EXPENSES"; payload: FixedExpense }
   | { type: "HYDRATE"; payload: State };
@@ -99,6 +102,56 @@ function reducer(state: State, action: Action): State {
       };
       return { ...state, expenses: [{ id, ...sanitizedExpense }, ...state.expenses] };
     }
+    case "EDIT_EXPENSE": {
+      const sanitizedExpense = {
+        ...action.payload,
+        amount: sanitizeNumber(action.payload.amount),
+        description: sanitizeExpenseDescription(action.payload.description),
+        date: sanitizeDate(action.payload.date),
+        card: sanitizeCardBrand(action.payload.card),
+        cuotasCount: action.payload.cuotasCount ? sanitizeNumber(action.payload.cuotasCount) : undefined,
+      };
+      return {
+        ...state,
+        expenses: state.expenses.map((e) => 
+          e.id === action.id ? { ...e, ...sanitizedExpense } : e
+        ),
+      };
+    }
+    case "REMOVE_EXPENSE": {
+      return {
+        ...state,
+        expenses: state.expenses.filter((e) => e.id !== action.id),
+      };
+    }
+    case "CLEAN_MONTHLY_EXPENSES": {
+      // Mantener solo cuotas y suscripciones del mes anterior
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      return {
+        ...state,
+        expenses: state.expenses.filter((e) => {
+          const expenseDate = new Date(e.date);
+          const expenseMonth = expenseDate.getMonth();
+          const expenseYear = expenseDate.getFullYear();
+          
+          // Si es del mes actual, mantener
+          if (expenseYear === currentYear && expenseMonth === currentMonth) {
+            return true;
+          }
+          
+          // Si es una suscripción o tiene cuotas, mantener
+          if (e.isSubscription || (e.cuotas && e.cuotasCount)) {
+            return true;
+          }
+          
+          // Eliminar gastos de meses anteriores que no son cuotas ni suscripciones
+          return false;
+        })
+      };
+    }
     case "SET_SALARY": {
       const sanitizedSalary = {
         amountUSD: sanitizeNumber(action.payload.amountUSD),
@@ -127,6 +180,9 @@ const StoreContext = createContext<{
   editBank: (id: string, name: string) => void;
   removeBank: (id: string) => void;
   addExpense: (payload: Omit<Expense, "id">) => void;
+  editExpense: (id: string, payload: Omit<Expense, "id">) => void;
+  removeExpense: (id: string) => void;
+  cleanMonthlyExpenses: () => void;
   setSalary: (payload: Salary) => void;
   setFixedExpenses: (payload: FixedExpense) => void;
 } | null>(null);
@@ -242,6 +298,18 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
     addExpense: (payload: Omit<Expense, "id">) => {
       dispatch({ type: "ADD_EXPENSE", payload });
       toast({ title: "Gasto agregado" });
+    },
+    editExpense: (id: string, payload: Omit<Expense, "id">) => {
+      dispatch({ type: "EDIT_EXPENSE", id, payload });
+      toast({ title: "Gasto actualizado" });
+    },
+    removeExpense: (id: string) => {
+      dispatch({ type: "REMOVE_EXPENSE", id });
+      toast({ title: "Gasto eliminado" });
+    },
+    cleanMonthlyExpenses: () => {
+      dispatch({ type: "CLEAN_MONTHLY_EXPENSES" });
+      toast({ title: "Gastos del mes anterior limpiados" });
     },
     setSalary: (payload: Salary) => {
       dispatch({ type: "SET_SALARY", payload });
